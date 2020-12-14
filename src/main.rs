@@ -15,8 +15,13 @@ fn main(){
     let window = Window::new(&event_loop).expect("Failed to create window instance.");
     window.set_title(TITLE);
     let renderer = renderer::Renderer::new(&window);
+    let mut first_loop = true;
     event_loop.run(move |event,_,control_flow|{
         *control_flow = ControlFlow::Poll;
+        if first_loop{
+            renderer.vulkan_interface.print_debug_info();
+            first_loop = false;
+        }
         match event {
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,

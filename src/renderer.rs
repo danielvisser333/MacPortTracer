@@ -3,7 +3,7 @@ pub struct Renderer{
     camera : super::camera::Camera,
     width : u32,
     height : u32,
-    vulkan_interface : vulkan::VulkanInterface,
+    pub vulkan_interface : vulkan::VulkanInterface,
 }
 impl Renderer{
     pub fn new(window : &winit::window::Window) -> Self{
