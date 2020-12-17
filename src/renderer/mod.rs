@@ -3,6 +3,7 @@ mod surface;
 mod device;
 mod swapchain;
 mod render_pass;
+mod framebuffers;
 
 use winit::window::Window;
 
@@ -29,6 +30,7 @@ pub struct Renderer{
     _swapchain_images : Vec<ash::vk::Image>,
     swapchain_image_views : Vec<ash::vk::ImageView>,
     render_pass : ash::vk::RenderPass,
+    framebuffers : Vec<ash::vk::Framebuffer>,
 }
 impl Renderer{
     pub fn new(window : &Window)->Self{
@@ -49,6 +51,7 @@ impl Renderer{
         let swapchain_images = swapchain::create_swapchain_images(&swapchain_loader, &swapchain);
         let swapchain_image_views = swapchain::create_swapchain_image_views(&swapchain_images, &device, format.format);
         let render_pass = render_pass::create_render_pass(&device, format.format);
+        let framebuffers = framebuffers::create_framebuffers(&swapchain_image_views, &device, &extent, &render_pass);
         return Self{
             _entry : entry,
             instance,
@@ -69,6 +72,7 @@ impl Renderer{
             _swapchain_images : swapchain_images,
             swapchain_image_views,
             render_pass,
+            framebuffers,
         }
     }
     pub fn show_create_info(&self){
@@ -104,10 +108,18 @@ impl Renderer{
         println!("Using Render pass with 1 Subpass.");
         println!("");
     }
+    pub fn recreate_swapchain(&mut self){
+        unsafe{self.swapchain_loader.destroy_swapchain(self.swapchain, None)};
+        let swapchain_tupple = swapchain::create_swapchain(&self.instance, &self.device, &self.surface, &self.present_mode, &self.swapchain_extent, &self.swapchain_format, self.swapchain_image_count, self.graphics_queue_family, self.presentation_queue_family, &self.surface_loader, &self.physical_device);
+        self.swapchain = swapchain_tupple.1; self.swapchain_loader = swapchain_tupple.0;
+    }
 }
 impl Drop for Renderer{
     fn drop(&mut self){
         unsafe{self.device.device_wait_idle()}.expect("Oh no! The renderer crashed.");
+        for &framebuffer in self.framebuffers.iter(){
+            unsafe{self.device.destroy_framebuffer(framebuffer, None)};
+        }
         unsafe{self.device.destroy_render_pass(self.render_pass, None)};
         for &image_view in self.swapchain_image_views.iter(){
             unsafe{self.device.destroy_image_view(image_view, None)};

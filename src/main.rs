@@ -14,13 +14,15 @@ const VALIDATION_ENABLED : &'static bool = &true; //This severely hurts performa
 fn main(){
     let event_loop = EventLoop::new();
     let window = Window::new(&event_loop).expect("Failed to create window.");
-    let renderer = renderer::Renderer::new(&window);
+    let mut renderer = renderer::Renderer::new(&window);
     let mut first_loop = true;
     event_loop.run(move |event,_,control_flow|{
         *control_flow = ControlFlow::Poll;
         if first_loop{
             first_loop = false;
             renderer.show_create_info();
+            //Remove this when the renderer is finished.
+            renderer.recreate_swapchain();
         }
         match event{
             Event::WindowEvent{
