@@ -9,15 +9,8 @@ use std::ffi::CString;
 pub fn create_entry() -> Entry{
     return Entry::new().expect("Vulkan is not supported on your device.");
 }
-pub fn create_instance(entry : &Entry) -> Instance{
-    let mut exts = vec!(); 
-    exts.push(ash::extensions::khr::Surface::name().as_ptr());
-    #[cfg(all(windows))]
-    exts.push(ash::extensions::khr::Win32Surface::name().as_ptr());
-    #[cfg(target_os = "macos")]
-    exts.push(ash::extensions::mvk::MacOSSurface::name().as_ptr());
-    #[cfg(all(unix, not(target_os = "android"), not(target_os = "macos")))]
-    exts.push(ash::extensions::khr::XlibSurface::name().as_ptr());
+pub fn create_instance(entry : &Entry , window : &winit::window::Window) -> Instance{
+    let exts = ash_window::enumerate_required_extensions(window).expect("Failed to enumerate window extensionns.").iter().map(|ext| ext.as_ptr()).collect::<Vec<_>>();
     let application_info = vk::ApplicationInfo{
         s_type : vk::StructureType::APPLICATION_INFO,
         p_next : std::ptr::null(),

@@ -3,7 +3,6 @@ mod surface;
 mod device;
 mod swapchain;
 mod render_pass;
-mod platform;
 
 use winit::window::Window;
 
@@ -34,7 +33,7 @@ pub struct Renderer{
 impl Renderer{
     pub fn new(window : &Window)->Self{
         let entry = instance::create_entry();
-        let instance = instance::create_instance(&entry);
+        let instance = instance::create_instance(&entry,window);
         let (surface_loader,surface) = surface::create_surface(&entry, &instance, window);
         let physical_device = device::choose_physical_device(&instance, &surface_loader, &surface);
         let graphics_queue_family = device::get_graphics_queue_family(&instance, &physical_device);
