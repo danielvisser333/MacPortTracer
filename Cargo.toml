@@ -10,6 +10,7 @@ edition = "2018"
 winit = "0.24.0"
 cgmath = "0.17.0"
 ash = "0.31.0"
+image = "0.23.12"
 [target.'cfg(windows)'.dependencies]
 winapi = {version="0.3.9", features = ["windef", "winuser"]}
 [target.'cfg(target_os = "macos")'.dependencies]
